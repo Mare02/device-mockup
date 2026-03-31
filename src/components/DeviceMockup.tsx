@@ -22,7 +22,10 @@ import { Label } from "@/components/ui/label";
 import {
   Select,
   SelectContent,
+  SelectGroup,
   SelectItem,
+  SelectLabel,
+  SelectSeparator,
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
@@ -44,7 +47,7 @@ const GRADIENTS = [
   "bg-white",
 ];
 
-const PHONE_MODELS = [
+const DEVICE_MODELS = [
   {
     id: "iphone-island",
     name: "iPhone Notch Island",
@@ -53,6 +56,7 @@ const PHONE_MODELS = [
     radius: 48,
     bezel: 14,
     notchType: "dynamic-island",
+    category: "Phones",
   },
   {
     id: "iphone-notch",
@@ -62,6 +66,7 @@ const PHONE_MODELS = [
     radius: 46,
     bezel: 16,
     notchType: "notch",
+    category: "Phones",
   },
   {
     id: "iphone-classic",
@@ -71,6 +76,7 @@ const PHONE_MODELS = [
     radius: 44,
     bezel: 12,
     notchType: "home-button",
+    category: "Phones",
   },
   {
     id: "android-hole",
@@ -80,6 +86,7 @@ const PHONE_MODELS = [
     radius: 40,
     bezel: 12,
     notchType: "punch-hole",
+    category: "Phones",
   },
   {
     id: "android-clean",
@@ -89,6 +96,37 @@ const PHONE_MODELS = [
     radius: 24,
     bezel: 8,
     notchType: "none",
+    category: "Phones",
+  },
+  {
+    id: "ipad-pro-11",
+    name: "iPad Pro 11-inch",
+    width: 834,
+    height: 1194,
+    radius: 32,
+    bezel: 24,
+    notchType: "none",
+    category: "Tablets",
+  },
+  {
+    id: "ipad-pro-12",
+    name: "iPad Pro 12.9-inch",
+    width: 1024,
+    height: 1366,
+    radius: 36,
+    bezel: 24,
+    notchType: "none",
+    category: "Tablets",
+  },
+  {
+    id: "ipad-mini",
+    name: "iPad Mini",
+    width: 744,
+    height: 1133,
+    radius: 28,
+    bezel: 20,
+    notchType: "none",
+    category: "Tablets",
   },
 ];
 
@@ -106,7 +144,7 @@ type MockupFrame = {
   imgProps: ImgProps;
 };
 
-type PhoneModel = (typeof PHONE_MODELS)[number];
+type DeviceModel = (typeof DEVICE_MODELS)[number];
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -149,7 +187,7 @@ async function fileToDataURL(file: File): Promise<string> {
  */
 async function renderMockupToCanvas(
   frames: MockupFrame[],
-  model: PhoneModel,
+  model: DeviceModel,
   settings: { padding: number; gap: number; shadow: number; scale: number }
 ): Promise<HTMLCanvasElement> {
   const s = settings.scale / 100;
@@ -358,7 +396,7 @@ async function renderMockupToCanvas(
 type FrameProps = {
   frame: MockupFrame;
   index: number;
-  activeModel: PhoneModel & { width: number; height: number; radius: number; bezel: number };
+  activeModel: DeviceModel & { width: number; height: number; radius: number; bezel: number };
   s: number;
   padding: number;
   shadow: number;
@@ -487,7 +525,7 @@ const Frame = memo(function Frame({
             size="icon"
             variant="outline"
             title="Remove Screen"
-            className="h-8 w-8 rounded-full border-destructive text-destructive hover:bg-destructive hover:text-white"
+            className="h-8 w-8 rounded-full border-white border-2! text-destructive hover:bg-destructive hover:text-white bg-white dark:bg-zinc-950 shadow-md"
             onClick={onRemove}
           >
             <Minus className="w-4 h-4" />
@@ -496,7 +534,7 @@ const Frame = memo(function Frame({
         <Button
           size="icon"
           variant="outline"
-          title="Screen Settings"
+          title="Settings"
           className={`h-8 w-8 rounded-full bg-background ${isActiveSettings ? "border-primary text-primary" : ""}`}
           onClick={onToggleSettings}
         >
@@ -606,7 +644,7 @@ const Frame = memo(function Frame({
             <div className="flex justify-between items-center p-5 pb-3 border-b border-border/30 sticky top-0 z-10 bg-background/95 backdrop-blur-md rounded-t-3xl">
               <div className="flex items-center gap-2">
                 <Settings2 className="w-4 h-4 text-primary" />
-                <span className="font-bold text-foreground uppercase tracking-widest text-[10px]">Screen Settings</span>
+                <span className="font-bold text-foreground uppercase tracking-widest text-[10px]">Settings</span>
               </div>
               <button
                 onClick={onToggleSettings}
@@ -773,6 +811,7 @@ export function DeviceMockup() {
     },
   ]);
   const [activeSettingsFrame, setActiveSettingsFrame] = useState<string | null>(null);
+  const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
   const [modelId, setModelId] = useState("iphone-island");
   const [padding, setPadding] = useState(64);
   const [gap, setGap] = useState(32);
@@ -784,7 +823,7 @@ export function DeviceMockup() {
 
   // const { isLoaded, isSignedIn } = useAuth(); // removed clerk
 
-  const rawModel = PHONE_MODELS.find((m) => m.id === modelId) || PHONE_MODELS[0];
+  const rawModel = DEVICE_MODELS.find((m) => m.id === modelId) || DEVICE_MODELS[0];
   const s = scale / 100;
   const activeModel = {
     ...rawModel,
@@ -858,10 +897,24 @@ export function DeviceMockup() {
 
   const removeFrame = useCallback((frameId: string) => {
     setFrames((prev) => {
+      const frame = prev.find(f => f.id === frameId);
+      if (frame?.image) {
+        setDeleteConfirmId(frameId);
+        return prev; // don't remove yet
+      }
       if (prev.length <= 1) return prev;
       return prev.filter((f) => f.id !== frameId);
     });
   }, []);
+
+  const confirmRemoveFrame = useCallback(() => {
+    if (!deleteConfirmId) return;
+    setFrames((prev) => {
+      if (prev.length <= 1) return prev;
+      return prev.filter((f) => f.id !== deleteConfirmId);
+    });
+    setDeleteConfirmId(null);
+  }, [deleteConfirmId]);
 
   const clearImage = useCallback((frameId: string) => {
     setFrames((prev) =>
@@ -998,7 +1051,7 @@ export function DeviceMockup() {
         {/* Editor Settings (Desktop & Mobile Drawer) */}
         <div className={`w-full container mx-auto px-4 ${isMobileSettingsOpen ? 'fixed inset-0 z-40 flex flex-col justify-end p-4' : 'hidden md:block'}`}>
           {isMobileSettingsOpen && (
-            <div className="fixed inset-0 bg-black/60 backdrop-blur-sm -z-10" onClick={() => setIsMobileSettingsOpen(false)} />
+            <div className="fixed inset-0 bg-zinc-950 -z-10" onClick={() => setIsMobileSettingsOpen(false)} />
           )}
           <Card className={`${isMobileSettingsOpen ? 'max-h-[85vh] overflow-y-auto animate-in slide-in-from-bottom duration-500 shadow-2xl-strong border-t-2 border-primary/20' : ''}`}>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -1011,17 +1064,29 @@ export function DeviceMockup() {
             </CardHeader>
             <CardContent className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
               <div className="space-y-3">
-                <Label>Phone Model</Label>
+                <Label>Device Model</Label>
                 <Select value={modelId} onValueChange={setModelId}>
                   <SelectTrigger className="w-full">
                     <SelectValue placeholder="Select device" />
                   </SelectTrigger>
                   <SelectContent>
-                    {PHONE_MODELS.map((m) => (
-                      <SelectItem key={m.id} value={m.id}>
-                        {m.name}
-                      </SelectItem>
-                    ))}
+                    <SelectGroup>
+                      <SelectLabel>Phones</SelectLabel>
+                      {DEVICE_MODELS.filter(m => m.category === "Phones").map((m) => (
+                        <SelectItem key={m.id} value={m.id}>
+                          {m.name}
+                        </SelectItem>
+                      ))}
+                    </SelectGroup>
+                    <SelectSeparator />
+                    <SelectGroup>
+                      <SelectLabel>Tablets</SelectLabel>
+                      {DEVICE_MODELS.filter(m => m.category === "Tablets").map((m) => (
+                        <SelectItem key={m.id} value={m.id}>
+                          {m.name}
+                        </SelectItem>
+                      ))}
+                    </SelectGroup>
                   </SelectContent>
                 </Select>
               </div>
@@ -1070,7 +1135,7 @@ export function DeviceMockup() {
 
               <div className="space-y-3">
                 <Label className="flex justify-between">
-                  <span>Device Scale</span>
+                  <span>Scale</span>
                   <span className="text-muted-foreground">{scale}%</span>
                 </Label>
                 <Slider
@@ -1123,7 +1188,7 @@ export function DeviceMockup() {
         </div>
 
         {/* Canvas Area */}
-        <div className="w-full flex flex-col items-center justify-start border border-border rounded-xl shadow-sm p-4 relative">
+        <div className="w-full flex flex-col items-center justify-start border border-border rounded-xl shadow-sm p-4 bg-zinc-50/50 dark:bg-zinc-950/20 relative">
           <div className="w-full overflow-x-auto overflow-y-visible p-2 pb-16 pt-16">
             <div
               className="transition-all duration-300 flex items-center w-max mx-auto px-2"
@@ -1155,7 +1220,7 @@ export function DeviceMockup() {
                   <Button
                     variant="outline"
                     size="icon"
-                    className="h-16 w-16 rounded-full border-dashed border-2 opacity-50 hover:opacity-100 transition-opacity bg-background hover:bg-muted"
+                    className="h-16 w-16 rounded-full border-dashed border-2 border-white opacity-100 transition-opacity bg-background hover:bg-muted shadow-md"
                     onClick={addFrame}
                     title={`Add screen (${frames.length}/${MAX_SCREENS})`}
                   >
@@ -1170,6 +1235,46 @@ export function DeviceMockup() {
           </div>
         </div>
       </div>
+
+      {/* Confirmation Modal */}
+      {deleteConfirmId && (
+        <div className="fixed inset-0 z-100 flex items-center justify-center bg-black/70 animate-in fade-in duration-200" onClick={() => setDeleteConfirmId(null)}>
+          <Card 
+            className="w-full max-w-[400px] shadow-2xl border-destructive/20 animate-in zoom-in-95 duration-200 mx-4"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <CardHeader className="text-center pb-2">
+              <div className="mx-auto w-12 h-12 rounded-full bg-destructive/10 flex items-center justify-center mb-4">
+                <X className="w-6 h-6 text-destructive" />
+              </div>
+              <CardTitle className="text-xl font-bold">Are you sure?</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-6 pt-0">
+              <p className="text-center text-muted-foreground">
+                This frame contains an image. Removing it will permanently delete your work on this screen.
+              </p>
+              <div className="flex flex-col gap-3">
+                <Button 
+                  variant="destructive" 
+                  size="lg" 
+                  onClick={confirmRemoveFrame}
+                  className="w-full font-bold h-12 shadow-sm"
+                >
+                  Yes, remove device
+                </Button>
+                <Button 
+                  variant="ghost" 
+                  size="lg" 
+                  onClick={() => setDeleteConfirmId(null)}
+                  className="w-full font-medium"
+                >
+                  No, keep it
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      )}
     </div>
   );
 }
