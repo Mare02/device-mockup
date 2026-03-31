@@ -479,7 +479,8 @@ const Frame = memo(function Frame({
   return (
     <div className="relative group shrink-0 transition-all duration-300 hover:-translate-y-1">
       {/* Frame Actions (Excluded from Export) */}
-      <div className="exclude-from-export opacity-0 group-hover:opacity-100 transition-opacity absolute -top-12 inset-x-0 flex justify-center gap-2 z-30">
+      {/* Frame Actions (Excluded from Export) */}
+      <div className="exclude-from-export opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity absolute -top-12 inset-x-0 flex justify-center gap-2 z-30">
         {showRemove && (
           <Button
             size="icon"
@@ -491,27 +492,25 @@ const Frame = memo(function Frame({
             <Minus className="w-4 h-4" />
           </Button>
         )}
+        <Button
+          size="icon"
+          variant="outline"
+          title="Screen Settings"
+          className={`h-8 w-8 rounded-full bg-background ${isActiveSettings ? "border-primary text-primary" : ""}`}
+          onClick={onToggleSettings}
+        >
+          <Settings2 className="w-4 h-4" />
+        </Button>
         {frame.image && (
-          <>
-            <Button
-              size="icon"
-              variant="outline"
-              title="Image Settings"
-              className={`h-8 w-8 rounded-full bg-background ${isActiveSettings ? "border-primary text-primary" : ""}`}
-              onClick={onToggleSettings}
-            >
-              <Settings2 className="w-4 h-4" />
-            </Button>
-            <Button
-              size="icon"
-              variant="destructive"
-              title="Remove Image"
-              className="h-8 w-8 rounded-full"
-              onClick={onClearImage}
-            >
-              <X className="w-4 h-4" />
-            </Button>
-          </>
+          <Button
+            size="icon"
+            variant="destructive"
+            title="Remove Image"
+            className="h-8 w-8 rounded-full"
+            onClick={onClearImage}
+          >
+            <X className="w-4 h-4" />
+          </Button>
         )}
         <Button
           size="icon"
@@ -527,34 +526,6 @@ const Frame = memo(function Frame({
         </Button>
       </div>
 
-      {/* Gradient Picker (Excluded from Export) */}
-      <div className="exclude-from-export opacity-0 group-hover:opacity-100 transition-opacity absolute -bottom-10 inset-x-0 flex justify-center gap-1.5 z-30 flex-wrap px-2">
-        {GRADIENTS.map((g, idx) => (
-          <button
-            key={idx}
-            className={`w-6 h-6 rounded-full border-2 transition-all shrink-0 ${
-              g === frame.gradient ? "border-primary scale-125 shadow-sm" : "border-muted/50 hover:border-primary/50"
-            } ${g}`}
-            onClick={() => onGradient(g)}
-          />
-        ))}
-        {/* Custom Color Input */}
-        <div
-          className={`relative w-6 h-6 rounded-full overflow-hidden border-2 shrink-0 transition-all flex items-center justify-center ${
-            !frame.gradient.startsWith("bg-")
-              ? "border-primary scale-125 shadow-sm"
-              : "border-muted/50 hover:border-primary/50"
-          }`}
-        >
-          <Pipette className="w-3 h-3 text-white absolute pointer-events-none z-10 mix-blend-difference" />
-          <input
-            type="color"
-            className="absolute inset-[-10px] w-[50px] h-[50px] cursor-pointer"
-            value={!frame.gradient.startsWith("bg-") ? frame.gradient : "#e2e8f0"}
-            onChange={(e) => onGradient(e.target.value)}
-          />
-        </div>
-      </div>
 
       {/* Screen Canvas Background */}
       <div
@@ -618,17 +589,23 @@ const Frame = memo(function Frame({
           </div>
         </div>
 
-        {/* Image Settings Side Panel (Inline) */}
+        {/* Image Settings Side Panel / Mobile Overlay */}
         <div
-          className={`shrink-0 transition-all duration-500 ease-in-out flex items-center group/settings overflow-hidden ${
-            isActiveSettings ? "w-72 opacity-100 ml-6" : "w-0 opacity-0 ml-0 pointer-events-none"
+          className={`transition-all duration-300 ease-in-out ${
+            isActiveSettings
+              ? "fixed inset-0 z-50 flex items-end justify-center p-4 bg-black/20 md:relative md:inset-auto md:z-0 md:bg-transparent md:flex md:items-center md:p-0 md:w-72 md:ml-6 md:opacity-100"
+              : "hidden"
           }`}
+          onClick={(e) => {
+            if (e.target === e.currentTarget) onToggleSettings();
+          }}
         >
-          <div className="w-72 bg-background/95 backdrop-blur-xl border border-border/50 p-5 rounded-3xl shadow-[0_20px_50px_rgba(0,0,0,0.2)] flex flex-col gap-5 text-xs">
-            <div className="flex justify-between items-center pb-3 border-b border-border/30">
+          <div className="w-full max-w-sm md:w-72 bg-background/95 backdrop-blur-xl border border-border/50 rounded-3xl shadow-[0_20px_50px_rgba(0,0,0,0.3)] flex flex-col text-xs animate-in slide-in-from-bottom md:slide-in-from-left duration-300 max-h-[50vh]">
+            {/* Header (Sticky) */}
+            <div className="flex justify-between items-center p-5 pb-3 border-b border-border/30 sticky top-0 z-10 bg-background/95 backdrop-blur-md rounded-t-3xl">
               <div className="flex items-center gap-2">
                 <Settings2 className="w-4 h-4 text-primary" />
-                <span className="font-bold text-foreground uppercase tracking-widest text-[10px]">Image Transform</span>
+                <span className="font-bold text-foreground uppercase tracking-widest text-[10px]">Screen Settings</span>
               </div>
               <button
                 onClick={onToggleSettings}
@@ -638,76 +615,142 @@ const Frame = memo(function Frame({
               </button>
             </div>
 
-            <div className="flex flex-col gap-3">
-              <div className="flex justify-between text-muted-foreground font-medium">
-                <Label className="text-[10px] uppercase font-bold text-zinc-500 tracking-wider">Scale</Label>
-                <span className="bg-primary/10 text-primary px-2 rounded-md font-mono">{frame.imgProps.scale}%</span>
-              </div>
-              <Slider
-                min={10}
-                max={300}
-                step={1}
-                value={[frame.imgProps.scale]}
-                onValueChange={([v]: number[]) => onUpdateImgProps({ scale: v })}
-                className="py-1 cursor-pointer"
-              />
-            </div>
+            {/* Content (Scrollable) */}
+            <div className="p-5 flex flex-col gap-5 overflow-y-auto">
+              {frame.image && (
+                <>
+                  <div className="flex flex-col gap-3">
+                    <div className="flex justify-between text-muted-foreground font-medium">
+                      <Label className="text-[10px] uppercase font-bold text-zinc-500 tracking-wider">Scale</Label>
+                      <span className="bg-primary/10 text-primary px-2 rounded-md font-mono">{frame.imgProps.scale}%</span>
+                    </div>
+                    <Slider
+                      min={10}
+                      max={300}
+                      step={1}
+                      value={[frame.imgProps.scale]}
+                      onValueChange={([v]: number[]) => onUpdateImgProps({ scale: v })}
+                      className="py-1 cursor-pointer"
+                    />
+                  </div>
 
-            <div className="flex flex-col gap-3">
-              <div className="flex justify-between text-muted-foreground font-medium">
-                <Label className="text-[10px] uppercase font-bold text-zinc-500 tracking-wider">Horizontal Position</Label>
-                <span className="bg-zinc-100 dark:bg-zinc-800 px-2 rounded-md font-mono">{frame.imgProps.x}px</span>
-              </div>
-              <Slider
-                min={-1000}
-                max={1000}
-                step={1}
-                value={[frame.imgProps.x]}
-                onValueChange={([v]: number[]) => onUpdateImgProps({ x: v })}
-                className="py-1"
-              />
-            </div>
+                  <div className="flex flex-col gap-3">
+                    <div className="flex justify-between text-muted-foreground font-medium">
+                      <Label className="text-[10px] uppercase font-bold text-zinc-500 tracking-wider">Horizontal Position</Label>
+                      <span className="bg-zinc-100 dark:bg-zinc-800 px-2 rounded-md font-mono">{frame.imgProps.x}px</span>
+                    </div>
+                    <Slider
+                      min={-1000}
+                      max={1000}
+                      step={1}
+                      value={[frame.imgProps.x]}
+                      onValueChange={([v]: number[]) => onUpdateImgProps({ x: v })}
+                      className="py-1"
+                    />
+                  </div>
 
-            <div className="flex flex-col gap-3">
-              <div className="flex justify-between text-muted-foreground font-medium">
-                <Label className="text-[10px] uppercase font-bold text-zinc-500 tracking-wider">Vertical Position</Label>
-                <span className="bg-zinc-100 dark:bg-zinc-800 px-2 rounded-md font-mono">{frame.imgProps.y}px</span>
-              </div>
-              <Slider
-                min={-1000}
-                max={1000}
-                step={1}
-                value={[frame.imgProps.y]}
-                onValueChange={([v]: number[]) => onUpdateImgProps({ y: v })}
-                className="py-1"
-              />
-            </div>
+                  <div className="flex flex-col gap-3">
+                    <div className="flex justify-between text-muted-foreground font-medium">
+                      <Label className="text-[10px] uppercase font-bold text-zinc-500 tracking-wider">Vertical Position</Label>
+                      <span className="bg-zinc-100 dark:bg-zinc-800 px-2 rounded-md font-mono">{frame.imgProps.y}px</span>
+                    </div>
+                    <Slider
+                      min={-1000}
+                      max={1000}
+                      step={1}
+                      value={[frame.imgProps.y]}
+                      onValueChange={([v]: number[]) => onUpdateImgProps({ y: v })}
+                      className="py-1"
+                    />
+                  </div>
 
-            <div className="flex flex-col gap-3">
-              <div className="flex justify-between text-muted-foreground font-medium">
-                <Label className="text-[10px] uppercase font-bold text-zinc-500 tracking-wider">Rotation</Label>
-                <span className="bg-zinc-100 dark:bg-zinc-800 px-2 rounded-md font-mono">{frame.imgProps.rotate}°</span>
-              </div>
-              <Slider
-                min={-180}
-                max={180}
-                step={1}
-                value={[frame.imgProps.rotate]}
-                onValueChange={([v]: number[]) => onUpdateImgProps({ rotate: v })}
-                className="py-1"
-              />
-            </div>
+                  <div className="flex flex-col gap-3">
+                    <div className="flex justify-between text-muted-foreground font-medium">
+                      <Label className="text-[10px] uppercase font-bold text-zinc-500 tracking-wider">Rotation</Label>
+                      <span className="bg-zinc-100 dark:bg-zinc-800 px-2 rounded-md font-mono">{frame.imgProps.rotate}°</span>
+                    </div>
+                    <Slider
+                      min={-180}
+                      max={180}
+                      step={1}
+                      value={[frame.imgProps.rotate]}
+                      onValueChange={([v]: number[]) => onUpdateImgProps({ rotate: v })}
+                      className="py-1"
+                    />
+                  </div>
+                </>
+              )}
 
-            <div className="pt-2">
-              <Button
-                variant="outline"
-                size="sm"
-                className="w-full text-[10px] h-9 border-zinc-200 dark:border-zinc-800 hover:bg-zinc-50 dark:hover:bg-zinc-900 transition-all font-bold uppercase tracking-widest"
-                onClick={() => onUpdateImgProps({ scale: 100, x: 0, y: 0, rotate: 0 })}
-              >
-                Reset Transform
-              </Button>
+              <div className="flex flex-col gap-3">
+                <Label className="text-[10px] uppercase font-bold text-zinc-500 tracking-wider">Background Color</Label>
+                <div className="flex flex-wrap gap-1.5">
+                  {GRADIENTS.map((g, idx) => (
+                    <button
+                      key={idx}
+                      className={`w-6 h-6 rounded-full border-2 transition-all shrink-0 ${
+                        g === frame.gradient ? "border-primary scale-110 shadow-sm" : "border-muted/50 hover:border-primary/50"
+                      } ${g}`}
+                      onClick={() => onGradient(g)}
+                    />
+                  ))}
+                  <div
+                    className={`relative w-6 h-6 rounded-full overflow-hidden border-2 shrink-0 transition-all flex items-center justify-center ${
+                      !frame.gradient.startsWith("bg-")
+                        ? "border-primary scale-110 shadow-sm"
+                        : "border-muted/50 hover:border-primary/50"
+                    }`}
+                  >
+                    <Pipette className="w-3 h-3 text-white absolute pointer-events-none z-10 mix-blend-difference" />
+                    <input
+                      type="color"
+                      className="absolute inset-[-10px] w-[50px] h-[50px] cursor-pointer"
+                      value={!frame.gradient.startsWith("bg-") ? frame.gradient : "#e2e8f0"}
+                      onChange={(e) => onGradient(e.target.value)}
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <div className="pt-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="w-full text-[10px] h-9 border-zinc-200 dark:border-zinc-800 hover:bg-zinc-50 dark:hover:bg-zinc-900 transition-all font-bold uppercase tracking-widest"
+                  onClick={() => onUpdateImgProps({ scale: 100, x: 0, y: 0, rotate: 0 })}
+                >
+                  Reset Transform
+                </Button>
+              </div>
             </div>
+          </div>
+        </div>
+
+        {/* Floating tools (Desktop only hover) */}
+        <div className="exclude-from-export hidden md:flex opacity-0 group-hover:opacity-100 transition-opacity absolute -bottom-10 inset-x-0 justify-center gap-1.5 z-30 flex-wrap px-2">
+          {GRADIENTS.map((g, idx) => (
+            <button
+              key={idx}
+              className={`w-6 h-6 rounded-full border-2 transition-all shrink-0 ${
+                g === frame.gradient ? "border-primary scale-125 shadow-sm" : "border-muted/50 hover:border-primary/50"
+              } ${g}`}
+              onClick={() => onGradient(g)}
+            />
+          ))}
+          {/* Custom Color Input */}
+          <div
+            className={`relative w-6 h-6 rounded-full overflow-hidden border-2 shrink-0 transition-all flex items-center justify-center ${
+              !frame.gradient.startsWith("bg-")
+                ? "border-primary scale-125 shadow-sm"
+                : "border-muted/50 hover:border-primary/50"
+            }`}
+          >
+            <Pipette className="w-3 h-3 text-white absolute pointer-events-none z-10 mix-blend-difference" />
+            <input
+              type="color"
+              className="absolute inset-[-10px] w-[50px] h-[50px] cursor-pointer"
+              value={!frame.gradient.startsWith("bg-") ? frame.gradient : "#e2e8f0"}
+              onChange={(e) => onGradient(e.target.value)}
+            />
           </div>
         </div>
       </div>
@@ -736,6 +779,7 @@ export function DeviceMockup() {
   const [scale, setScale] = useState(80);
   const [isExporting, setIsExporting] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [isMobileSettingsOpen, setIsMobileSettingsOpen] = useState(false);
 
   // const { isLoaded, isSignedIn } = useAuth(); // removed clerk
 
@@ -879,11 +923,30 @@ export function DeviceMockup() {
   return (
     <div className="container mx-auto px-4 max-w-full">
       <div className="flex flex-col gap-8">
-        {/* Editor Settings */}
-        <div className="w-full container mx-auto px-4 pt-8 md:pt-16">
-          <Card>
-            <CardHeader>
+        {/* Mobile Settings Toggle */}
+        <div className="md:hidden fixed bottom-6 right-6 z-50">
+          <Button
+            size="lg"
+            className="rounded-full h-14 w-14 shadow-2xl flex items-center justify-center p-0"
+            onClick={() => setIsMobileSettingsOpen(!isMobileSettingsOpen)}
+          >
+            {isMobileSettingsOpen ? <X size={24} /> : <Settings2 size={24} />}
+          </Button>
+        </div>
+
+        {/* Editor Settings (Desktop & Mobile Drawer) */}
+        <div className={`w-full container mx-auto px-4 ${isMobileSettingsOpen ? 'fixed inset-0 z-40 flex flex-col justify-end p-4' : 'hidden md:block'}`}>
+          {isMobileSettingsOpen && (
+            <div className="fixed inset-0 bg-black/60 backdrop-blur-sm -z-10" onClick={() => setIsMobileSettingsOpen(false)} />
+          )}
+          <Card className={`${isMobileSettingsOpen ? 'max-h-[85vh] overflow-y-auto animate-in slide-in-from-bottom duration-500 shadow-2xl-strong border-t-2 border-primary/20' : ''}`}>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-xl">Settings</CardTitle>
+              {isMobileSettingsOpen && (
+                <Button variant="ghost" size="icon" onClick={() => setIsMobileSettingsOpen(false)}>
+                  <X size={20} />
+                </Button>
+              )}
             </CardHeader>
             <CardContent className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
               <div className="space-y-3">
@@ -999,7 +1062,7 @@ export function DeviceMockup() {
         </div>
 
         {/* Canvas Area */}
-        <div className="w-full flex flex-col items-center justify-start border border-border rounded-xl bg-card shadow-sm p-4 relative">
+        <div className="w-full flex flex-col items-center justify-start border border-border rounded-xl shadow-sm p-4 relative">
           <div className="w-full overflow-x-auto overflow-y-visible p-2 pb-16 pt-16">
             <div
               className="transition-all duration-300 flex items-center w-max mx-auto px-2"

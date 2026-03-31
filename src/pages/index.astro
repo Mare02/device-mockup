@@ -9,8 +9,23 @@ const description = "Create stunning, high-resolution device mockups and app sto
 
 <Layout title={title} description={description}>
 	<main class="min-h-screen">
+		{/* Global Navbar */}
+		<nav class="h-16 border-b border-white/5 flex items-center justify-between px-6 bg-black/50 backdrop-blur-md sticky top-0 z-50">
+			<a href="/" class="flex items-center gap-2 group transition-opacity hover:opacity-80">
+				<div class="w-8 h-8 rounded-lg bg-primary flex items-center justify-center text-white shadow-[0_0_15px_rgba(99,102,241,0.3)]">
+					<MonitorSmartphone size={16} />
+				</div>
+				<span class="text-xl font-bold font-outfit text-white tracking-tight">MockupMaster</span>
+			</a>
+
+			<nav class="flex items-center gap-6">
+				<a href="/" class="text-sm font-medium text-white transition-colors">Home</a>
+				<a href="/app" class="text-sm font-medium text-zinc-400 hover:text-white transition-colors">Editor</a>
+			</nav>
+		</nav>
+
 		{/* Hero Section */}
-		<header class="relative pt-24 pb-16 px-4 overflow-hidden">
+		<header class="relative pt-16 pb-16 px-4 overflow-hidden">
 			<div class="absolute top-0 left-1/2 -translate-x-1/2 w-full h-[600px] bg-gradient-to-b from-primary/20 via-transparent to-transparent -z-10 blur-3xl opacity-50"></div>
 			<div class="absolute -top-24 -left-24 w-96 h-96 bg-primary/30 rounded-full blur-[120px] -z-10 animate-float"></div>
 			<div class="absolute top-1/2 -right-24 w-96 h-96 bg-indigo-500/20 rounded-full blur-[120px] -z-10 animate-float" style="animation-delay: -2s;"></div>
