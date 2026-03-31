@@ -1,0 +1,35 @@
+---
+import Layout from '../layouts/Layout.astro';
+import { DeviceMockup } from '../components/DeviceMockup';
+import '../styles/global.css';
+import { ChevronLeft, MonitorSmartphone } from 'lucide-react';
+
+const title = "App Master — Device Mockup Editor";
+const description = "The interactive editor for creating professional app screenshots and mockups.";
+---
+
+<Layout title={title} description={description}>
+	<div class="min-h-screen bg-zinc-950">
+		<header class="h-16 border-b border-white/5 flex items-center justify-between px-6 bg-black/50 backdrop-blur-md sticky top-0 z-50">
+			<a href="/" class="flex items-center gap-2 text-zinc-400 hover:text-white transition-colors group">
+				<ChevronLeft size={18} class="group-hover:-translate-x-1 transition-transform" />
+				<span class="text-sm font-medium">Back to Home</span>
+			</a>
+			
+			<div class="flex items-center gap-2">
+				<div class="w-7 h-7 rounded-lg bg-primary/20 border border-primary/30 flex items-center justify-center text-primary">
+					<MonitorSmartphone size={14} />
+				</div>
+				<span class="text-lg font-bold font-outfit text-white tracking-tight">MockupMaster Tool</span>
+			</div>
+			
+			<div class="w-24"></div> {/* Spacer for balance */}
+		</header>
+		
+		<main class="py-8">
+			<div class="max-w-[1600px] mx-auto px-4">
+				<DeviceMockup client:load />
+			</div>
+		</main>
+	</div>
+</Layout>
