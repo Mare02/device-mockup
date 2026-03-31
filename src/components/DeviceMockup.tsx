@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useCallback, memo } from "react";
+import { useState, useCallback, memo, useEffect } from "react";
+import JSZip from "jszip";
 import {
   Download,
   MonitorSmartphone,
@@ -793,6 +794,36 @@ export function DeviceMockup() {
     bezel: rawModel.bezel * s,
   };
 
+  // ---- Navigation Guards ----
+  const hasDiscardableWork =
+    frames.length > 1 ||
+    frames.some(
+      (f) =>
+        f.image !== null ||
+        f.gradient !== "bg-white" ||
+        f.imgProps.scale !== 100 ||
+        f.imgProps.x !== 0 ||
+        f.imgProps.y !== 0 ||
+        f.imgProps.rotate !== 0
+    ) ||
+    padding !== 64 ||
+    gap !== 32 ||
+    shadow !== 30 ||
+    scale !== 80 ||
+    modelId !== "iphone-island";
+
+  useEffect(() => {
+    if (!hasDiscardableWork) return;
+
+    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      e.preventDefault();
+      e.returnValue = ""; // Standard way to trigger browser prompt
+    };
+
+    window.addEventListener("beforeunload", handleBeforeUnload);
+    return () => window.removeEventListener("beforeunload", handleBeforeUnload);
+  }, [hasDiscardableWork]);
+
   // ---- Image Upload (downscale + store as base64) ----
   const handleImageUpload = useCallback(
     async (frameId: string, e: React.ChangeEvent<HTMLInputElement>) => {
@@ -873,28 +904,58 @@ export function DeviceMockup() {
     async (format: "png" | "jpeg") => {
       setIsExporting(true);
       try {
-        const canvas = await getExportCanvas();
-        canvas.toBlob(
-          (blob) => {
-            if (!blob) return;
-            const url = URL.createObjectURL(blob);
-            const link = document.createElement("a");
-            link.download = `mockup-${Date.now()}.${format}`;
-            link.href = url;
-            link.click();
-            // Revoke short-lived export blob immediately after click
-            setTimeout(() => URL.revokeObjectURL(url), 1000);
-          },
-          format === "png" ? "image/png" : "image/jpeg",
-          0.92
-        );
+        const mimeType = format === "png" ? "image/png" : "image/jpeg";
+
+        if (frames.length === 1) {
+          const canvas = await renderMockupToCanvas([frames[0]], rawModel, {
+            padding,
+            gap,
+            shadow,
+            scale,
+          });
+          const blob = await new Promise<Blob | null>((res) => canvas.toBlob(res, mimeType, 0.92));
+          if (!blob) throw new Error("Failed to create image blob");
+
+          const url = URL.createObjectURL(blob);
+          const link = document.createElement("a");
+          link.download = `mockup-${Date.now()}.${format}`;
+          link.href = url;
+          link.click();
+          setTimeout(() => URL.revokeObjectURL(url), 1000);
+        } else {
+          const zip = new JSZip();
+          await Promise.all(
+            frames.map(async (frame, i) => {
+              const canvas = await renderMockupToCanvas([frame], rawModel, {
+                padding,
+                gap,
+                shadow,
+                scale,
+              });
+              const blob = await new Promise<Blob | null>((res) =>
+                canvas.toBlob(res, mimeType, 0.92)
+              );
+              if (blob) {
+                zip.file(`screen-${i + 1}.${format}`, blob);
+              }
+            })
+          );
+
+          const content = await zip.generateAsync({ type: "blob" });
+          const url = URL.createObjectURL(content);
+          const link = document.createElement("a");
+          link.download = `screens-export-${Date.now()}.zip`;
+          link.href = url;
+          link.click();
+          setTimeout(() => URL.revokeObjectURL(url), 1000);
+        }
       } catch (err) {
         console.error("Export failed", err);
       } finally {
         setIsExporting(false);
       }
     },
-    [getExportCanvas]
+    [frames, rawModel, padding, gap, shadow, scale]
   );
 
   const copyToClipboard = useCallback(async () => {
