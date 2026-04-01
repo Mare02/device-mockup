@@ -1,7 +1,7 @@
 ---
 import Layout from '../layouts/Layout.astro';
 import '../styles/global.css';
-import { MonitorSmartphone, Download, Sparkles, Layers, Share2 } from 'lucide-react';
+import { MonitorSmartphone, Download, Sparkles, Layers, Share2, Wand2 } from 'lucide-react';
 
 const title = "MockupMaster — Professional App Screenshot Generator";
 const description = "Create stunning, high-resolution device mockups and app store screenshots in seconds. Choose from multiple devices, gradients, and custom transforms.";
@@ -20,7 +20,8 @@ const description = "Create stunning, high-resolution device mockups and app sto
 
 			<nav class="flex items-center gap-6">
 				<a href="/" class="text-sm font-medium text-white transition-colors">Home</a>
-				<a href="/app" class="text-sm font-medium text-zinc-400 hover:text-white transition-colors">Editor</a>
+				<a href="/editor" class="text-sm font-medium text-zinc-400 hover:text-white transition-colors flex items-center gap-1.5">Canvas Editor <span class="text-[9px] font-bold uppercase tracking-widest text-primary bg-primary/10 border border-primary/20 px-1.5 py-0.5 rounded-full">New</span></a>
+				<a href="/app" class="text-sm font-medium text-zinc-400 hover:text-white transition-colors">Classic</a>
 			</nav>
 		</nav>
 
@@ -45,8 +46,13 @@ const description = "Create stunning, high-resolution device mockups and app sto
 				</p>
 				
 				<div class="flex flex-col sm:flex-row items-center justify-center gap-4">
-					<a href="/app" class="px-8 py-4 rounded-full bg-primary text-primary-foreground font-bold hover:shadow-[0_0_30px_rgba(99,102,241,0.4)] transition-all flex items-center gap-2 group">
-						<span>Launch Editor</span>
+					<a href="/editor" class="px-8 py-4 rounded-full bg-primary text-primary-foreground font-bold hover:shadow-[0_0_30px_rgba(99,102,241,0.4)] transition-all flex items-center gap-2 group">
+						<Wand2 size={18} />
+						<span>Canvas Editor</span>
+						<span class="text-[9px] font-bold uppercase tracking-widest bg-white/20 px-2 py-0.5 rounded-full">New</span>
+					</a>
+					<a href="/app" class="px-8 py-4 rounded-full bg-white/5 border border-white/10 text-white font-bold hover:bg-white/10 transition-all flex items-center gap-2 group">
+						<span>Classic Editor</span>
 						<Share2 size={18} class="group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
 					</a>
 					<a href="#features" class="px-8 py-4 rounded-full bg-white/5 border border-white/10 text-white font-bold hover:bg-white/10 transition-all">

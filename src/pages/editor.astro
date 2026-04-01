@@ -1,0 +1,30 @@
+---
+import Layout from '../layouts/Layout.astro';
+import { KonvaEditor } from '../components/konva/KonvaEditor';
+import '../styles/global.css';
+import { MonitorSmartphone } from 'lucide-react';
+
+const title = "MockupMaster — Canvas Editor (Beta)";
+const description = "The next-generation infinite-canvas editor for creating professional device mockups with pan, zoom, and interactive editing.";
+---
+
+<Layout title={title} description={description}>
+	<div class="h-screen flex flex-col bg-zinc-950">
+		<header class="h-16 border-b border-white/5 flex items-center justify-between px-6 bg-black/50 backdrop-blur-md shrink-0 z-50">
+			<a href="/" class="flex items-center gap-2 group transition-opacity hover:opacity-80">
+				<div class="w-8 h-8 rounded-lg bg-primary flex items-center justify-center text-white shadow-[0_0_15px_rgba(99,102,241,0.3)]">
+					<MonitorSmartphone size={16} />
+				</div>
+				<span class="text-xl font-bold font-outfit text-white tracking-tight">MockupMaster</span>
+				<span class="text-[10px] font-bold uppercase tracking-widest text-primary bg-primary/10 border border-primary/20 px-2 py-0.5 rounded-full ml-1">Canvas</span>
+			</a>
+
+			<nav class="flex items-center gap-6">
+				<a href="/" class="text-sm font-medium text-zinc-400 hover:text-white transition-colors">Home</a>
+				<a href="/app" class="text-sm font-medium text-zinc-400 hover:text-white transition-colors">Classic Editor</a>
+			</nav>
+		</header>
+
+		<KonvaEditor client:only="react" />
+	</div>
+</Layout>
