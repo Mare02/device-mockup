@@ -86,7 +86,7 @@ export function KonvaEditor() {
     const modelId = "iphone-island";
     const gap = 24;
     let nextX = 100;
-    let nextY = 60;
+    let nextY = 120;
 
     for (let i = 0; i < 3; i++) {
       const el = createDeviceFrameElement(modelId, nextX, nextY);

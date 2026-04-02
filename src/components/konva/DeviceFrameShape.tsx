@@ -153,48 +153,50 @@ export function DeviceFrameShape({
   return (
     <Group>
       {/* ── Top Floating Bar (HTML-based for better UI/interactivity) ── */}
-      <Html
-        divProps={{
-          style: {
-            position: 'absolute',
-            pointerEvents: 'none',
-            width: `${width}px`,
-            left: 0,
-            top: `${-88 * s}px`,
-            zIndex: 50,
-          }
-        }}
-      >
-        <div
-          className="flex items-center justify-between bg-[#181a1d] border border-white/15 rounded-md px-6 shadow-2xl overflow-hidden pointer-events-auto select-none"
-          style={{ height: `${56 * s}px` }}
+      <Group y={-100 * s}>
+        <Html
+          divProps={{
+            style: {
+              position: 'absolute',
+              pointerEvents: 'none',
+              width: `${width}px`,
+              left: 0,
+              top: 0,
+              zIndex: 5,
+            }
+          }}
         >
-          {/* Label */}
-          <div 
-            className="text-white font-bold whitespace-nowrap truncate mr-4"
-            style={{ fontSize: `${Math.max(14, 18 * s)}px` }}
+          <div
+            className="flex items-center justify-between bg-[#181a1d] border border-white/15 rounded-md px-6 shadow-2xl overflow-hidden pointer-events-auto select-none"
+            style={{ height: `${56 * s}px` }}
           >
-            {label || "Screen 1"}
-          </div>
+            {/* Label */}
+            <div 
+              className="text-white font-bold whitespace-nowrap truncate mr-4"
+              style={{ fontSize: `${Math.max(14, 18 * s)}px` }}
+            >
+              {label || "Screen 1"}
+            </div>
 
-          {/* Action Buttons */}
-          <div className="flex items-center gap-2">
-            <button 
-              className="flex items-center justify-center text-white/70 hover:text-white hover:bg-white/10 rounded-full transition-all active:scale-90"
-              style={{ width: `${42 * s}px`, height: `${42 * s}px` }}
-            >
-              <Palette size={Math.max(18, 22 * s)} />
-            </button>
-            <button 
-              onClick={() => onUploadClick?.(elementId)}
-              className="flex items-center justify-center text-white/70 hover:text-white hover:bg-white/10 rounded-full transition-all active:scale-90"
-              style={{ width: `${42 * s}px`, height: `${42 * s}px` }}
-            >
-              <MoreHorizontal size={Math.max(18, 22 * s)} />
-            </button>
+            {/* Action Buttons */}
+            <div className="flex items-center gap-2">
+              <button 
+                className="flex items-center justify-center text-white/70 hover:text-white hover:bg-white/10 rounded-full transition-all active:scale-90"
+                style={{ width: `${42 * s}px`, height: `${42 * s}px` }}
+              >
+                <Palette size={Math.max(18, 22 * s)} />
+              </button>
+              <button 
+                onClick={() => onUploadClick?.(elementId)}
+                className="flex items-center justify-center text-white/70 hover:text-white hover:bg-white/10 rounded-full transition-all active:scale-90"
+                style={{ width: `${42 * s}px`, height: `${42 * s}px` }}
+              >
+                <MoreHorizontal size={Math.max(18, 22 * s)} />
+              </button>
+            </div>
           </div>
-        </div>
-      </Html>
+        </Html>
+      </Group>
 
       {/* ── Background and Device area (clipped to size) ── */}
       <Group
@@ -208,7 +210,7 @@ export function DeviceFrameShape({
         {isSolid ? (
           <Rect
             x={0}
-            y={-20}
+            y={0}
             width={width}
             height={height}
             fill={colors[0]}
