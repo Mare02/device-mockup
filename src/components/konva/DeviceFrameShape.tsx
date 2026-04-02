@@ -21,7 +21,7 @@ import { useEffect, useState, useMemo } from "react";
 import { Group, Rect, Circle, Image as KonvaImage, Line, Shape, Text } from "react-konva";
 import { Html } from "react-konva-utils";
 import { Palette, MoreHorizontal } from "lucide-react";
-import type { DeviceModel, ImgProps } from "./types";
+import type { ImgProps } from "./types";
 import type Konva from "konva";
 import { resolveGradientColors, loadImage, getModel } from "./helpers";
 
@@ -160,13 +160,13 @@ export function DeviceFrameShape({
             pointerEvents: 'none',
             width: `${width}px`,
             left: 0,
-            top: `${-68 * s}px`,
+            top: `${-88 * s}px`,
             zIndex: 50,
           }
         }}
       >
-        <div 
-          className="flex items-center justify-between bg-[#181a1d] border border-white/15 rounded-full px-6 shadow-2xl overflow-hidden pointer-events-auto select-none"
+        <div
+          className="flex items-center justify-between bg-[#181a1d] border border-white/15 rounded-md px-6 shadow-2xl overflow-hidden pointer-events-auto select-none"
           style={{ height: `${56 * s}px` }}
         >
           {/* Label */}
@@ -174,7 +174,7 @@ export function DeviceFrameShape({
             className="text-white font-bold whitespace-nowrap truncate mr-4"
             style={{ fontSize: `${Math.max(14, 18 * s)}px` }}
           >
-            {label || "Main screenshot 1"}
+            {label || "Screen 1"}
           </div>
 
           {/* Action Buttons */}
@@ -208,7 +208,7 @@ export function DeviceFrameShape({
         {isSolid ? (
           <Rect
             x={0}
-            y={0}
+            y={-20}
             width={width}
             height={height}
             fill={colors[0]}

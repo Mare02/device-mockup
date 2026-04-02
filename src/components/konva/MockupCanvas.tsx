@@ -179,7 +179,7 @@ export function MockupCanvas({
 
 
   // ── Render elements ──
-  const renderElement = (el: CanvasElement) => {
+  const renderElement = (el: CanvasElement, index: number) => {
     const isSelected = el.id === selectedId;
     const isDraggable = !el.locked;
 
@@ -200,7 +200,7 @@ export function MockupCanvas({
             isSelected={isSelected}
             isDraggable={isDraggable}
             elementId={df.id}
-            label={df.label}
+            label={el.label || `Screen ${index + 1}`}
             onUploadClick={onUploadClick}
             onFrameDragEnd={handleFrameDragEnd(el)}
             onFrameTransformEnd={handleFrameTransformEnd(el)}
@@ -245,7 +245,7 @@ export function MockupCanvas({
           />
 
           {/* Render elements */}
-          {elements.map((el) => (
+          {elements.map((el, index) => (
               <Group
                 key={el.id}
                 id={`el-${el.id}`}
@@ -258,7 +258,7 @@ export function MockupCanvas({
                 onClick={handleElementClick(el)}
                 onTap={handleElementClick(el)}
               >
-                {renderElement(el)}
+                {renderElement(el, index)}
               </Group>
           ))}
 

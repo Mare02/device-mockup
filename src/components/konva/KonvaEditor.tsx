@@ -38,6 +38,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Slider } from "@/components/ui/slider";
 import { Label } from "@/components/ui/label";
+import { Separator } from "@/components/ui/separator";
 import {
   Select,
   SelectContent,
@@ -48,6 +49,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+
+import { cn } from "@/lib/utils";
 
 import { MockupCanvas } from "./MockupCanvas";
 import type { CanvasElement, DeviceFrameElement, ImgProps } from "./types";
@@ -667,10 +670,15 @@ export function KonvaEditor() {
   return (
     <div className="flex flex-col h-[calc(100vh-4rem)] overflow-hidden">
       {/* ═══ Top bar ═══ */}
-      <div className="border-b border-white/5 bg-black/40 backdrop-blur-md px-4 py-2 flex items-center gap-3 overflow-x-auto shrink-0 z-10">
-        <span className="text-xs text-zinc-500 font-mono shrink-0">
-          {elements.length} element{elements.length !== 1 ? "s" : ""}
-        </span>
+      <header className="border-b border-white/5 bg-black/40 backdrop-blur-md px-4 py-2 flex items-center gap-3 overflow-x-auto shrink-0 z-10">
+        <div className="flex items-center gap-2">
+          <MonitorSmartphone className="w-4 h-4 text-zinc-500" />
+          <span className="text-[10px] uppercase font-bold text-zinc-500 tracking-wider font-mono">
+            {elements.length} element{elements.length !== 1 ? "s" : ""}
+          </span>
+        </div>
+
+        <Separator orientation="vertical" className="h-4 bg-white/10 mx-1" />
 
         <div className="flex-1" />
 
@@ -678,33 +686,33 @@ export function KonvaEditor() {
         <div className="flex items-center gap-1.5 shrink-0">
           <Button
             size="sm"
-            className="h-7 text-xs px-3"
+            className="h-7 text-[11px] px-3 font-semibold"
             onClick={() => handleExport("png")}
             disabled={isExporting || !hasImages}
           >
-            <Download className="w-3 h-3 mr-1" /> PNG
+            <Download className="w-3.5 h-3.5 mr-1.5" /> PNG
           </Button>
           <Button
             size="sm"
             variant="outline"
-            className="h-7 text-xs px-3"
+            className="h-7 text-[11px] px-3 font-semibold"
             onClick={() => handleExport("jpeg")}
             disabled={isExporting || !hasImages}
           >
-            <Download className="w-3 h-3 mr-1" /> JPG
+            <Download className="w-3.5 h-3.5 mr-1.5" /> JPG
           </Button>
           <Button
             size="sm"
             variant="secondary"
-            className="h-7 text-xs px-3"
+            className="h-7 text-[11px] px-3 font-semibold"
             onClick={copyToClipboard}
             disabled={isExporting || !hasImages}
           >
-            {copied ? <Check className="w-3 h-3 mr-1" /> : <Copy className="w-3 h-3 mr-1" />}
+            {copied ? <Check className="w-3.5 h-3.5 mr-1.5" /> : <Copy className="w-3.5 h-3.5 mr-1.5" />}
             {copied ? "Copied!" : "Copy"}
           </Button>
         </div>
-      </div>
+      </header>
 
       {/* ═══ Main area ═══ */}
       <div className="flex-1 flex relative overflow-hidden">
@@ -748,13 +756,15 @@ export function KonvaEditor() {
               title="Zoom Out"
               icon={<ZoomOut className="w-3.5 h-3.5" />}
             />
-            <button
-              className="text-[11px] text-zinc-400 font-mono w-11 text-center hover:text-white transition-colors select-none"
+            <Button
+              variant="ghost"
+              size="sm"
+              className="h-7 text-[11px] text-zinc-400 font-mono px-2 hover:text-white transition-colors select-none"
               onClick={resetView}
               title="Reset Zoom"
             >
               {Math.round(zoomLevel * 100)}%
-            </button>
+            </Button>
             <ToolButton
               onClick={() => zoomBy(1)}
               title="Zoom In"
@@ -1102,23 +1112,25 @@ function ToolButton({
   disabled?: boolean;
 }) {
   return (
-    <button
-      className={`h-7 w-7 rounded-lg flex items-center justify-center transition-colors ${
-        active
-          ? "bg-primary/20 text-primary"
-          : "text-zinc-400 hover:text-white hover:bg-white/5"
-      } ${disabled ? "opacity-30 pointer-events-none" : ""}`}
+    <Button
+      variant={active ? "secondary" : "ghost"}
+      size="icon-sm"
+      className={cn(
+        "h-7 w-7 rounded-lg text-zinc-400 p-0",
+        active && "bg-primary/20 text-primary hover:bg-primary/30 hover:text-primary",
+        disabled && "opacity-30 pointer-events-none"
+      )}
       onClick={onClick}
       title={title}
       disabled={disabled}
     >
       {icon}
-    </button>
+    </Button>
   );
 }
 
 function Sep() {
-  return <div className="w-px h-4 bg-white/10 mx-0.5" />;
+  return <Separator orientation="vertical" className="h-4 bg-white/10 mx-1" />;
 }
 
 function Section({
