@@ -26,6 +26,7 @@ type Props = {
   onUpdateElement: (id: string, changes: Partial<CanvasElement>) => void;
   stageRef: React.RefObject<Konva.Stage | null>;
   onZoomChange?: (scale: number) => void;
+  onUploadClick?: (id: string) => void;
 };
 
 export function MockupCanvas({
@@ -35,6 +36,7 @@ export function MockupCanvas({
   onUpdateElement,
   stageRef,
   onZoomChange,
+  onUploadClick,
 }: Props) {
   const containerRef = useRef<HTMLDivElement>(null);
   const transformerRef = useRef<Konva.Transformer>(null);
@@ -123,7 +125,7 @@ export function MockupCanvas({
 
   // ── Deselect on empty click ──
   const handleStageClick = useCallback(
-    (e: Konva.KonvaEventObject<MouseEvent>) => {
+    (e: Konva.KonvaEventObject<any>) => {
       if (e.target === e.target.getStage()) {
         onSelect(null);
       }
@@ -168,7 +170,7 @@ export function MockupCanvas({
   );
 
   const handleElementClick = useCallback(
-    (el: CanvasElement) => (e: Konva.KonvaEventObject<MouseEvent>) => {
+    (el: CanvasElement) => (e: Konva.KonvaEventObject<any>) => {
       e.cancelBubble = true;
       onSelect(el.id);
     },
@@ -198,6 +200,8 @@ export function MockupCanvas({
             isSelected={isSelected}
             isDraggable={isDraggable}
             elementId={df.id}
+            label={df.label}
+            onUploadClick={onUploadClick}
             onFrameDragEnd={handleFrameDragEnd(el)}
             onFrameTransformEnd={handleFrameTransformEnd(el)}
           />

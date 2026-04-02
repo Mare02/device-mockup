@@ -75,6 +75,7 @@ import {
 
 export function KonvaEditor() {
   const stageRef = useRef<Konva.Stage | null>(null);
+  const uploadInputRef = useRef<HTMLInputElement>(null);
 
   // ── Element state ──
   const [elements, setElements] = useState<CanvasElement[]>(() => {
@@ -95,6 +96,7 @@ export function KonvaEditor() {
   // ── Tool state ──
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [zoomLevel, setZoomLevel] = useState(1);
+  const [uploadTargetId, setUploadTargetId] = useState<string | null>(null);
 
   // ── Export state ──
   const [isExporting, setIsExporting] = useState(false);
@@ -266,6 +268,20 @@ export function KonvaEditor() {
       e.target.value = "";
     },
     [updateElement]
+  );
+
+  const triggerUpload = useCallback((id: string) => {
+    setUploadTargetId(id);
+    uploadInputRef.current?.click();
+  }, []);
+
+  const handleGlobalUpload = useCallback(
+    async (e: React.ChangeEvent<HTMLInputElement>) => {
+      if (!uploadTargetId) return;
+      await handleImageUpload(uploadTargetId, e);
+      setUploadTargetId(null);
+    },
+    [uploadTargetId, handleImageUpload]
   );
 
   const clearImage = useCallback(
@@ -701,6 +717,16 @@ export function KonvaEditor() {
             onUpdateElement={updateElement as any}
             stageRef={stageRef}
             onZoomChange={setZoomLevel}
+            onUploadClick={triggerUpload}
+          />
+
+          {/* Hidden global upload input for canvas element upload triggers */}
+          <input
+            type="file"
+            ref={uploadInputRef}
+            accept="image/*"
+            className="hidden"
+            onChange={handleGlobalUpload}
           />
 
           {/* ── Floating Toolbar ── */}

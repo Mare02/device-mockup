@@ -32,6 +32,7 @@ interface BaseElement {
   height: number;
   rotation: number;
   locked: boolean;
+  label?: string;
 }
 
 /** A device frame element — renders a phone mockup with optional screenshot */
