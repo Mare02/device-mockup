@@ -89,11 +89,12 @@ export function MockupCanvas({
       // Cmd+Scroll or Ctrl+Scroll = Zoom
       if (e.evt.metaKey || e.evt.ctrlKey) {
         const oldScale = stage.scaleX();
-        // Use center-anchored zoom for stability
-        const center = { x: stage.width() / 2, y: stage.height() / 2 };
-        const centerPointTo = {
-          x: (center.x - stage.x()) / oldScale,
-          y: (center.y - stage.y()) / oldScale,
+        const pointer = stage.getPointerPosition();
+        if (!pointer) return;
+
+        const mousePointTo = {
+          x: (pointer.x - stage.x()) / oldScale,
+          y: (pointer.y - stage.y()) / oldScale,
         };
 
         // Scroll delta
@@ -106,8 +107,8 @@ export function MockupCanvas({
 
         stage.scale({ x: newScale, y: newScale });
         stage.position({
-          x: center.x - centerPointTo.x * newScale,
-          y: center.y - centerPointTo.y * newScale,
+          x: pointer.x - mousePointTo.x * newScale,
+          y: pointer.y - mousePointTo.y * newScale,
         });
         onZoomChange?.(newScale);
       } else {
