@@ -58,6 +58,7 @@ import {
   MIN_ZOOM,
   MAX_ZOOM,
   ZOOM_BUTTON_STEP,
+  TOP_EXTRA_PADDING,
 } from "./constants";
 import {
   fileToDataURL,
@@ -76,9 +77,20 @@ export function KonvaEditor() {
   const stageRef = useRef<Konva.Stage | null>(null);
 
   // ── Element state ──
-  const [elements, setElements] = useState<CanvasElement[]>(() => [
-    createDeviceFrameElement("iphone-island", 100, 60),
-  ]);
+  const [elements, setElements] = useState<CanvasElement[]>(() => {
+    const initialElements: CanvasElement[] = [];
+    const modelId = "iphone-island";
+    const gap = 24;
+    let nextX = 100;
+    let nextY = 60;
+
+    for (let i = 0; i < 3; i++) {
+      const el = createDeviceFrameElement(modelId, nextX, nextY);
+      initialElements.push(el);
+      nextX += el.width + gap;
+    }
+    return initialElements;
+  });
 
   // ── Tool state ──
   const [selectedId, setSelectedId] = useState<string | null>(null);
@@ -104,7 +116,7 @@ export function KonvaEditor() {
 
   // ── Navigation guard ──
   const hasWork =
-    elements.length > 1 ||
+    elements.length !== 3 ||
     elements.some((el) => {
       if (el.type === "device-frame") {
         const df = el as DeviceFrameElement;
@@ -292,7 +304,7 @@ export function KonvaEditor() {
           // Recompute width/height to maintain padding with new model
           const model = getModel(modelId);
           const baseCellW = model.width + df.basePadding * 2;
-          const baseCellH = model.height + df.basePadding * 2;
+          const baseCellH = model.height + df.basePadding * 2 + TOP_EXTRA_PADDING;
           const currentScale = computeFrameScale(
             df.width,
             getModel(df.modelId),
@@ -455,7 +467,7 @@ export function KonvaEditor() {
       const bezel = model.bezel;
       const screenRadius = Math.max(radius - bezel, 4);
       const phoneX = pad;
-      const phoneY = (exportH - phoneH) / 2;
+      const phoneY = exportH - phoneH - pad;
       const screenX = phoneX + bezel;
       const screenY = phoneY + bezel;
       const screenW = phoneW - bezel * 2;

@@ -105,8 +105,9 @@ export function DeviceFrameShape({
   const safeShadow = Math.min(shadowIntensity, 40);
 
   // Phone centred in cell (default position before frameX/Y offset)
+  // Position phone near bottom; this pushes all "extra" vertical room to the top
   const phoneX = pad;
-  const phoneY = (height - phoneH) / 2;
+  const phoneY = height - phoneH - pad;
 
   // Screen area
   const screenX = phoneX + bezel;
@@ -143,7 +144,14 @@ export function DeviceFrameShape({
   const arrowLen = moveIconSize * 0.35;
 
   return (
-    <>
+    <Group
+      clipFunc={(ctx: any) => {
+        ctx.beginPath();
+        // Match the cornerRadius used in the background Rects (8 * s)
+        ctx.roundRect(0, 0, width, height, 8 * s);
+        ctx.closePath();
+      }}
+    >
       {/* ── Hit area (transparent, defines bounds for Transformer) ── */}
       <Rect x={0} y={0} width={width} height={height} fill="transparent" />
 
@@ -178,8 +186,6 @@ export function DeviceFrameShape({
           listening={false}
         />
       )}
-
-
 
       {/* ── Device frame group (offset by frameX/Y, draggable) ── */}
       <Group
@@ -276,7 +282,6 @@ export function DeviceFrameShape({
             ctx.closePath();
           }}
         >
-
           {/* Screenshot image */}
           {screenshotImg && imgTransform && (
             <KonvaImage
@@ -405,14 +410,28 @@ export function DeviceFrameShape({
             />
             {/* Left arrowhead */}
             <Line
-              points={[-arrowLen + arrowLen * 0.35, -arrowLen * 0.35, -arrowLen, 0, -arrowLen + arrowLen * 0.35, arrowLen * 0.35]}
+              points={[
+                -arrowLen + arrowLen * 0.35,
+                -arrowLen * 0.35,
+                -arrowLen,
+                0,
+                -arrowLen + arrowLen * 0.35,
+                arrowLen * 0.35,
+              ]}
               stroke="#fff"
               strokeWidth={Math.max(1, 1.5 * s)}
               listening={false}
             />
             {/* Right arrowhead */}
             <Line
-              points={[arrowLen - arrowLen * 0.35, -arrowLen * 0.35, arrowLen, 0, arrowLen - arrowLen * 0.35, arrowLen * 0.35]}
+              points={[
+                arrowLen - arrowLen * 0.35,
+                -arrowLen * 0.35,
+                arrowLen,
+                0,
+                arrowLen - arrowLen * 0.35,
+                arrowLen * 0.35,
+              ]}
               stroke="#fff"
               strokeWidth={Math.max(1, 1.5 * s)}
               listening={false}
@@ -426,14 +445,28 @@ export function DeviceFrameShape({
             />
             {/* Top arrowhead */}
             <Line
-              points={[-arrowLen * 0.35, -arrowLen + arrowLen * 0.35, 0, -arrowLen, arrowLen * 0.35, -arrowLen + arrowLen * 0.35]}
+              points={[
+                -arrowLen * 0.35,
+                -arrowLen + arrowLen * 0.35,
+                0,
+                -arrowLen,
+                arrowLen * 0.35,
+                -arrowLen + arrowLen * 0.35,
+              ]}
               stroke="#fff"
               strokeWidth={Math.max(1, 1.5 * s)}
               listening={false}
             />
             {/* Bottom arrowhead */}
             <Line
-              points={[-arrowLen * 0.35, arrowLen - arrowLen * 0.35, 0, arrowLen, arrowLen * 0.35, arrowLen - arrowLen * 0.35]}
+              points={[
+                -arrowLen * 0.35,
+                arrowLen - arrowLen * 0.35,
+                0,
+                arrowLen,
+                arrowLen * 0.35,
+                arrowLen - arrowLen * 0.35,
+              ]}
               stroke="#fff"
               strokeWidth={Math.max(1, 1.5 * s)}
               listening={false}
@@ -441,7 +474,7 @@ export function DeviceFrameShape({
           </Group>
         )}
       </Group>
-    </>
+    </Group>
   );
 }
 

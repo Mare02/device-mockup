@@ -1,4 +1,4 @@
-import { GRADIENT_COLORS, DEVICE_MODELS, DEFAULT_PADDING, DEFAULT_SHADOW, DEFAULT_SCALE_FACTOR } from "./constants";
+import { GRADIENT_COLORS, DEVICE_MODELS, DEFAULT_PADDING, DEFAULT_SHADOW, DEFAULT_SCALE_FACTOR, TOP_EXTRA_PADDING } from "./constants";
 import type { DeviceModel, DeviceFrameElement } from "./types";
 
 /**
@@ -74,7 +74,7 @@ export function createDeviceFrameElement(
   const model = getModel(modelId);
   const basePadding = DEFAULT_PADDING;
   const baseCellW = model.width + basePadding * 2;
-  const baseCellH = model.height + basePadding * 2;
+  const baseCellH = model.height + basePadding * 2 + TOP_EXTRA_PADDING;
   const w = baseCellW * DEFAULT_SCALE_FACTOR;
   const h = baseCellH * DEFAULT_SCALE_FACTOR;
 

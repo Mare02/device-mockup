@@ -11,6 +11,7 @@ export const MIN_ELEMENT_SIZE = 80;
 export const DEFAULT_PADDING = 64;
 export const DEFAULT_SHADOW = 30;
 export const DEFAULT_SCALE_FACTOR = 0.6;
+export const TOP_EXTRA_PADDING = 120; // Room for titles/subtitles
 
 export const GRADIENTS = [
   "bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500",
